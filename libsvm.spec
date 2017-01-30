@@ -1,5 +1,6 @@
 #
 # Conditional build:
+%bcond_without	java	# Java library
 %bcond_without	octave	# Octave (MATLAB) module
 #
 Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classification and regression
@@ -14,7 +15,9 @@ Source0:	http://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{version}.tar.gz
 Patch0:		%{name}-python.patch
 Patch1:		%{name}-make.patch
 URL:		http://www.csie.ntu.edu.tw/~cjlin/libsvm/
+%{?with_java:BuildRequires:	jdk >= 1.7}
 BuildRequires:	libstdc++-devel
+%{?with_java:BuildRequires:	m4}
 %{?with_octave:BuildRequires:	octave-devel}
 BuildRequires:	rpm-pythonprov
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -46,6 +49,18 @@ Header files for LIBSVM library.
 
 %description devel -l pl.UTF-8
 Pliki nagłówkowe biblioteki LIBSVM.
+
+%package -n java-libsvm
+Summary:	Java interface for LIBSVM library
+Summary(pl.UTF-8):	Interfejs Javy do biblioteki LIBSVM
+Group:		Libraries/Python
+Requires:	jre >= 1.7
+
+%description -n java-libsvm
+Java interface for LIBSVM library.
+
+%description -n java-libsvm -l pl.UTF-8
+Interfejs Javy do biblioteki LIBSVM.
 
 %package -n octave-libsvm
 Summary:	MATLAB/Octave interface for LIBSVM library
@@ -82,6 +97,10 @@ Interfejs Pythona do biblioteki LIBSVM.
 	CXX="%{__cxx}" \
 	CFLAGS="%{rpmcflags} -fPIC -Wall"
 
+%if %{with java}
+%{__make} -C java
+%endif
+
 %if %{with octave}
 %{__make} -C matlab \
 	CC="%{__cc}" \
@@ -101,6 +120,10 @@ ln -sf $(basename $RPM_BUILD_ROOT%{_libdir}/libsvm.so.*) $RPM_BUILD_ROOT%{_libdi
 cp -p svm.h $RPM_BUILD_ROOT%{_includedir}
 install svm-predict svm-scale svm-train $RPM_BUILD_ROOT%{_bindir}
 cp -p python/*.py $RPM_BUILD_ROOT%{py_sitescriptdir}
+
+%if %{with java}
+install -D java/libsvm.jar $RPM_BUILD_ROOT%{_javadir}/libsvm.jar
+%endif
 
 %if %{with octave}
 install -d $RPM_BUILD_ROOT%{octave_oct_dir}/libsvm
@@ -125,6 +148,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsvm.so
 %{_includedir}/svm.h
+
+%if %{with java}
+%files -n java-libsvm
+%defattr(644,root,root,755)
+%{_javadir}/libsvm.jar
+%endif
 
 %if %{with octave}
 %files -n octave-libsvm
