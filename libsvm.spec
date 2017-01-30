@@ -1,3 +1,7 @@
+#
+# Conditional build:
+%bcond_without	octave	# Octave (MATLAB) module
+#
 Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classification and regression
 Summary(pl.UTF-8):	LIBSVM - proste, łatwe w użyciu i wydajne oprogramowanie do klasyfikacji i regresji SVM
 Name:		libsvm
@@ -11,8 +15,11 @@ Patch0:		%{name}-python.patch
 Patch1:		%{name}-make.patch
 URL:		http://www.csie.ntu.edu.tw/~cjlin/libsvm/
 BuildRequires:	libstdc++-devel
+%{?with_octave:BuildRequires:	octave-devel}
 BuildRequires:	rpm-pythonprov
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		octave_oct_dir	%(octave-config --oct-site-dir)
 
 %description
 Libsvm is a simple, easy-to-use, and efficient software for SVM
@@ -40,6 +47,18 @@ Header files for LIBSVM library.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe biblioteki LIBSVM.
 
+%package -n octave-libsvm
+Summary:	MATLAB/Octave interface for LIBSVM library
+Summary(pl.UTF-8):	Interfejs MATLAB-a/Octave do biblioteki LIBSVM
+Group:		Libraries
+Requires:	octave
+
+%description -n octave-libsvm
+MATLAB/Octave interface for LIBSVM library.
+
+%description -n octave-libsvm -l pl.UTF-8
+Interfejs MATLAB-a/Octave do biblioteki LIBSVM.
+
 %package -n python-libsvm
 Summary:	Python interface for LIBSVM library
 Summary(pl.UTF-8):	Interfejs Pythona do biblioteki LIBSVM
@@ -63,6 +82,16 @@ Interfejs Pythona do biblioteki LIBSVM.
 	CXX="%{__cxx}" \
 	CFLAGS="%{rpmcflags} -fPIC -Wall"
 
+%if %{with octave}
+%{__make} -C matlab \
+	CC="%{__cc}" \
+	CXX="%{__cxx}" \
+	CFLAGS="%{rpmcflags} -fPIC -I.. -I/usr/include/octave -Wall" \
+	MEX=mkoctfile \
+	MEX_OPTION=--mex \
+	MEX_EXT=mex
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},%{_includedir},%{py_sitescriptdir}}
@@ -72,6 +101,11 @@ ln -sf $(basename $RPM_BUILD_ROOT%{_libdir}/libsvm.so.*) $RPM_BUILD_ROOT%{_libdi
 cp -p svm.h $RPM_BUILD_ROOT%{_includedir}
 install svm-predict svm-scale svm-train $RPM_BUILD_ROOT%{_bindir}
 cp -p python/*.py $RPM_BUILD_ROOT%{py_sitescriptdir}
+
+%if %{with octave}
+install -d $RPM_BUILD_ROOT%{octave_oct_dir}/libsvm
+install matlab/*.mex $RPM_BUILD_ROOT%{octave_oct_dir}/libsvm
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -91,6 +125,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsvm.so
 %{_includedir}/svm.h
+
+%if %{with octave}
+%files -n octave-libsvm
+%defattr(644,root,root,755)
+%dir %{octave_oct_dir}/libsvm
+%attr(755,root,root) %{octave_oct_dir}/libsvm/libsvmread.mex
+%attr(755,root,root) %{octave_oct_dir}/libsvm/libsvmwrite.mex
+%attr(755,root,root) %{octave_oct_dir}/libsvm/svmpredict.mex
+%attr(755,root,root) %{octave_oct_dir}/libsvm/svmtrain.mex
+%endif
 
 %files -n python-libsvm
 %defattr(644,root,root,755)
