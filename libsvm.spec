@@ -13,12 +13,14 @@
 Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classification and regression
 Summary(pl.UTF-8):	LIBSVM - proste, łatwe w użyciu i wydajne oprogramowanie do klasyfikacji i regresji SVM
 Name:		libsvm
-Version:	3.24
-Release:	5
+# 3.3 is newer than 3.25, so call it 3.30
+%define	fver	3.3
+Version:	%{fver}0
+Release:	1
 License:	BSD
 Group:		Libraries
-Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{version}.tar.gz
-# Source0-md5:	818aa0201dc9d938846a6394653915f4
+Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{fver}.tar.gz
+# Source0-md5:	0803c429d061be3c6445d5a79b9ee7c7
 Patch0:		%{name}-python.patch
 Patch1:		%{name}-make.patch
 URL:		https://www.csie.ntu.edu.tw/~cjlin/libsvm/
@@ -26,10 +28,10 @@ URL:		https://www.csie.ntu.edu.tw/~cjlin/libsvm/
 BuildRequires:	libstdc++-devel
 %{?with_java:BuildRequires:	m4}
 %{?with_octave:BuildRequires:	octave-devel}
-%{?with_python2:BuildRequires:	python-devel >= 1:2.6}
-%{?with_python3:BuildRequires:	python3-devel >= 1:3.2}
+%{?with_python2:BuildRequires:	python-devel >= 1:2.7}
+%{?with_python3:BuildRequires:	python3-devel >= 1:3.5}
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.507
+BuildRequires:	rpmbuild(macros) >= 1.714
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		octave_oct_dir	%(octave-config --oct-site-dir)
@@ -89,7 +91,7 @@ Summary:	Python 2 interface for LIBSVM library
 Summary(pl.UTF-8):	Interfejs Pythona 2 do biblioteki LIBSVM
 Group:		Libraries/Python
 Requires:	%{name} = %{version}-%{release}
-Requires:	python-libs >= 1:2.6
+Requires:	python-libs >= 1:2.7
 
 %description -n python-libsvm
 Python 2 interface for LIBSVM library.
@@ -102,7 +104,7 @@ Summary:	Python 3 interface for LIBSVM library
 Summary(pl.UTF-8):	Interfejs Pythona 3 do biblioteki LIBSVM
 Group:		Libraries/Python
 Requires:	%{name} = %{version}-%{release}
-Requires:	python3-libs >= 1:3.2
+Requires:	python3-libs >= 1:3.5
 
 %description -n python3-libsvm
 Python 3 interface for LIBSVM library.
@@ -111,14 +113,9 @@ Python 3 interface for LIBSVM library.
 Interfejs Pythona 3 do biblioteki LIBSVM.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{fver}
 %patch0 -p1
 %patch1 -p1
-
-# probably it was meant to be shared between liblinear and libsvm interfaces,
-# but it's impossible to keep in sync at distro level between different
-# versions of both packages (see python patch for changes in sources)
-%{__mv} python/{commonutil,svmcommonutil}.py
 
 %build
 %{__make} \
@@ -140,6 +137,18 @@ Interfejs Pythona 3 do biblioteki LIBSVM.
 	MEX_EXT=mex
 %endif
 
+%if %{with python2}
+cd python
+%py_build
+cd ..
+%endif
+
+%if %{with python3}
+cd python
+%py3_build
+cd ..
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},%{_includedir}}
@@ -159,18 +168,15 @@ install matlab/*.mex $RPM_BUILD_ROOT%{octave_oct_dir}/libsvm
 %endif
 
 %if %{with python2}
-install -d $RPM_BUILD_ROOT%{py_sitescriptdir}
-cp -p python/*.py $RPM_BUILD_ROOT%{py_sitescriptdir}
-%py_comp $RPM_BUILD_ROOT%{py_sitescriptdir}
-%py_ocomp $RPM_BUILD_ROOT%{py_sitescriptdir}
-%py_postclean
+cd python
+%py_install
+cd ..
 %endif
 
 %if %{with python3}
-install -d $RPM_BUILD_ROOT%{py3_sitescriptdir}
-cp -p python/*.py $RPM_BUILD_ROOT%{py3_sitescriptdir}
-%py3_comp $RPM_BUILD_ROOT%{py3_sitescriptdir}
-%py3_ocomp $RPM_BUILD_ROOT%{py3_sitescriptdir}
+cd python
+%py3_install
+cd ..
 %endif
 
 %clean
@@ -185,7 +191,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/svm-predict
 %attr(755,root,root) %{_bindir}/svm-scale
 %attr(755,root,root) %{_bindir}/svm-train
-%attr(755,root,root) %{_libdir}/libsvm.so.2
+%attr(755,root,root) %{_libdir}/libsvm.so.3
 
 %files devel
 %defattr(644,root,root,755)
@@ -212,19 +218,14 @@ rm -rf $RPM_BUILD_ROOT
 %files -n python-libsvm
 %defattr(644,root,root,755)
 %doc python/README
-%{py_sitescriptdir}/svm.py[co]
-%{py_sitescriptdir}/svmcommonutil.py[co]
-%{py_sitescriptdir}/svmutil.py[co]
+%{py_sitescriptdir}/libsvm
+%{py_sitescriptdir}/libsvm_official-3.30.0-py*.egg-info
 %endif
 
 %if %{with python3}
 %files -n python3-libsvm
 %defattr(644,root,root,755)
 %doc python/README
-%{py3_sitescriptdir}/svm.py
-%{py3_sitescriptdir}/svmcommonutil.py
-%{py3_sitescriptdir}/svmutil.py
-%{py3_sitescriptdir}/__pycache__/svm.cpython-*.py[co]
-%{py3_sitescriptdir}/__pycache__/svmcommonutil.cpython-*.py[co]
-%{py3_sitescriptdir}/__pycache__/svmutil.cpython-*.py[co]
+%{py3_sitescriptdir}/libsvm
+%{py3_sitescriptdir}/libsvm_official-3.30.0-py*.egg-info
 %endif
