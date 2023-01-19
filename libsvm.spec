@@ -124,7 +124,7 @@ Interfejs Pythona 3 do biblioteki LIBSVM.
 	CFLAGS="%{rpmcflags} -fPIC -Wall"
 
 %if %{with java}
-%{__make} -C java
+%{__make} -C java -j1
 %endif
 
 %if %{with octave}
