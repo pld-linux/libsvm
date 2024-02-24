@@ -1,20 +1,24 @@
---- libsvm-3.22/Makefile.orig	2016-12-21 19:58:48.000000000 +0100
-+++ libsvm-3.22/Makefile	2017-01-30 17:23:09.309548196 +0100
-@@ -11,12 +11,13 @@
- 	else \
- 		SHARED_LIB_FLAG="-shared -Wl,-soname,libsvm.so.$(SHVER)"; \
- 	fi; \
--	$(CXX) $${SHARED_LIB_FLAG} svm.o -o libsvm.so.$(SHVER)
-+	$(CXX) $${SHARED_LIB_FLAG} svm.o -o libsvm.so.$(SHVER) ; \
-+	ln -s libsvm.so.$(SHVER) libsvm.so
+--- libsvm-3.32/Makefile.orig	2024-02-24 18:41:45.128174246 +0100
++++ libsvm-3.32/Makefile	2024-02-24 18:44:49.467175596 +0100
+@@ -14,12 +14,16 @@ endif
  
+ all: svm-train svm-predict svm-scale
+ 
+-lib: svm.o
+-	$(CXX) $(SHARED_LIB_FLAG) svm.o -o libsvm.so.$(SHVER)
 -svm-predict: svm-predict.c svm.o
 -	$(CXX) $(CFLAGS) svm-predict.c svm.o -o svm-predict -lm
 -svm-train: svm-train.c svm.o
 -	$(CXX) $(CFLAGS) svm-train.c svm.o -o svm-train -lm
-+svm-predict: lib svm-predict.c
++lib: libsvm.so
++
++libsvm.so: svm.o
++	$(CXX) $(SHARED_LIB_FLAG) svm.o -o libsvm.so.$(SHVER) ; \
++	ln -s libsvm.so.$(SHVER) libsvm.so
++
++svm-predict: svm-predict.c libsvm.so
 +	$(CXX) $(CFLAGS) svm-predict.c -o svm-predict -L. -lsvm -lm
-+svm-train: lib svm-train.c
++svm-train: svm-train.c libsvm.so
 +	$(CXX) $(CFLAGS) svm-train.c -o svm-train -L. -lsvm -lm
  svm-scale: svm-scale.c
  	$(CXX) $(CFLAGS) svm-scale.c -o svm-scale

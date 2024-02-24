@@ -22,21 +22,21 @@
  import os, sys
  from .svm import *
  from .svm import __all__ as svm_all
---- libsvm-3.3/python/setup.py.orig	2022-08-10 16:06:27.000000000 +0200
-+++ libsvm-3.3/python/setup.py	2023-01-18 06:33:05.588764243 +0100
-@@ -76,9 +76,6 @@ class CleanCommand(clean_cmd):
+--- libsvm-3.32/python/setup.py.orig	2024-02-24 18:40:05.425381049 +0100
++++ libsvm-3.32/python/setup.py	2024-02-24 18:41:02.285073013 +0100
+@@ -89,9 +89,6 @@ class CleanCommand(clean_cmd):
                  rmtree(f)
  
  def main():
 -    if not path.exists(cpp_dir):
 -        create_cpp_source()
 -
-     with open("README") as f:
-         long_description = f.read()
+     if not path.exists(license_file):
+         copyfile(license_source, license_file)
  
-@@ -93,11 +90,6 @@ def main():
-         author_email="cjlin@csie.ntu.edu.tw",
+@@ -110,11 +107,6 @@ def main():
          url="https://www.csie.ntu.edu.tw/~cjlin/libsvm",
+         license=license_name,
          install_requires=["scipy"],
 -        ext_modules=[
 -            Extension(

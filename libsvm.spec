@@ -13,14 +13,12 @@
 Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classification and regression
 Summary(pl.UTF-8):	LIBSVM - proste, łatwe w użyciu i wydajne oprogramowanie do klasyfikacji i regresji SVM
 Name:		libsvm
-# 3.3 is newer than 3.25, so call it 3.30
-%define	fver	3.3
-Version:	%{fver}0
+Version:	3.32
 Release:	1
 License:	BSD
 Group:		Libraries
-Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{fver}.tar.gz
-# Source0-md5:	0803c429d061be3c6445d5a79b9ee7c7
+Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{version}.tar.gz
+# Source0-md5:	4692644b32317a97c566f9e26de460d1
 Patch0:		%{name}-python.patch
 Patch1:		%{name}-make.patch
 URL:		https://www.csie.ntu.edu.tw/~cjlin/libsvm/
@@ -115,7 +113,7 @@ Python 3 interface for LIBSVM library.
 Interfejs Pythona 3 do biblioteki LIBSVM.
 
 %prep
-%setup -q -n %{name}-%{fver}
+%setup -q
 %patch0 -p1
 %patch1 -p1
 
@@ -172,6 +170,8 @@ install matlab/*.mex $RPM_BUILD_ROOT%{octave_oct_dir}/libsvm
 %if %{with python2}
 cd python
 %py_install
+
+%py_postclean
 cd ..
 %endif
 
@@ -221,7 +221,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc python/README
 %{py_sitescriptdir}/libsvm
-%{py_sitescriptdir}/libsvm_official-3.30.0-py*.egg-info
+%{py_sitescriptdir}/libsvm_official-%{version}.0-py*.egg-info
 %endif
 
 %if %{with python3}
@@ -229,5 +229,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc python/README
 %{py3_sitescriptdir}/libsvm
-%{py3_sitescriptdir}/libsvm_official-3.30.0-py*.egg-info
+%{py3_sitescriptdir}/libsvm_official-%{version}.0-py*.egg-info
 %endif
