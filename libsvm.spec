@@ -14,7 +14,7 @@ Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classificat
 Summary(pl.UTF-8):	LIBSVM - proste, łatwe w użyciu i wydajne oprogramowanie do klasyfikacji i regresji SVM
 Name:		libsvm
 Version:	3.32
-Release:	2
+Release:	3
 License:	BSD
 Group:		Libraries
 Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{version}.tar.gz
