@@ -1,27 +1,3 @@
---- libsvm-3.3/python/libsvm/commonutil.py.orig	2022-08-10 16:06:27.000000000 +0200
-+++ libsvm-3.3/python/libsvm/commonutil.py	2023-01-18 06:28:48.186825376 +0100
-@@ -1,5 +1,3 @@
--#!/usr/bin/env python
--
- from __future__ import print_function
- from array import array
- import sys
---- libsvm-3.3/python/libsvm/svm.py.orig	2022-08-10 16:06:27.000000000 +0200
-+++ libsvm-3.3/python/libsvm/svm.py	2023-01-18 06:29:05.290066053 +0100
-@@ -1,5 +1,3 @@
--#!/usr/bin/env python
--
- from ctypes import *
- from ctypes.util import find_library
- from os import path
---- libsvm-3.3/python/libsvm/svmutil.py.orig	2022-08-10 16:06:27.000000000 +0200
-+++ libsvm-3.3/python/libsvm/svmutil.py	2023-01-18 06:29:15.500010741 +0100
-@@ -1,5 +1,3 @@
--#!/usr/bin/env python
--
- import os, sys
- from .svm import *
- from .svm import __all__ as svm_all
 --- libsvm-3.32/python/setup.py.orig	2024-02-24 18:40:05.425381049 +0100
 +++ libsvm-3.32/python/setup.py	2024-02-24 18:41:02.285073013 +0100
 @@ -89,9 +89,6 @@ class CleanCommand(clean_cmd):
@@ -46,17 +22,17 @@
          cmdclass={"clean": CleanCommand},
      )
  
---- libsvm-3.3/python/libsvm/svm.py.orig	2023-01-18 06:29:47.973168152 +0100
-+++ libsvm-3.3/python/libsvm/svm.py	2023-01-18 06:33:56.125157130 +0100
-@@ -23,10 +23,7 @@ __all__ = ['libsvm', 'svm_problem', 'svm
-            'SIGMOID', 'c_double', 'svm_model']
+--- libsvm-3.36/python/libsvm/svm.py.orig	2025-05-12 06:29:51.000000000 +0200
++++ libsvm-3.36/python/libsvm/svm.py	2025-07-05 20:40:08.941084638 +0200
+@@ -22,10 +22,7 @@ __all__ = ['libsvm', 'svm_problem', 'svm
+             'PRINT_STRING_FUN', 'kernel_names', 'c_double', 'svm_model']
  
  try:
 -    dirname = path.dirname(path.abspath(__file__))
 -    dynamic_lib_name = 'clib.cp*'
 -    path_to_so = glob(path.join(dirname, dynamic_lib_name))[0]
 -    libsvm = CDLL(path_to_so)
-+    libsvm = CDLL("libsvm.so.3")
++    libsvm = CDLL("libsvm.so.4")
  except:
      try:
          if sys.platform == 'win32':
