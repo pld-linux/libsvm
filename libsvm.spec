@@ -10,6 +10,12 @@
 %undefine	with_python2
 %undefine	with_python3
 %endif
+
+%if %{with java}
+%define		min_jdk_version	11
+%{?use_default_jdk}
+%endif
+
 Summary:	LIBSVM - simple, easy-to-use and efficient software for SVM classification and regression
 Summary(pl.UTF-8):	LIBSVM - proste, łatwe w użyciu i wydajne oprogramowanie do klasyfikacji i regresji SVM
 Name:		libsvm
@@ -22,7 +28,7 @@ Source0:	https://www.csie.ntu.edu.tw/~cjlin/libsvm/%{name}-%{version}.tar.gz
 Patch0:		%{name}-python.patch
 Patch1:		%{name}-make.patch
 URL:		https://www.csie.ntu.edu.tw/~cjlin/libsvm/
-%{?with_java:BuildRequires:	jdk >= 1.7}
+%{?with_java:%buildrequires_jdk}
 BuildRequires:	libstdc++-devel
 %{?with_java:BuildRequires:	m4}
 %{?with_octave:BuildRequires:	octave-devel}
@@ -30,8 +36,9 @@ BuildRequires:	libstdc++-devel
 %{?with_python2:BuildRequires:	python-setuptools}
 %{?with_python3:BuildRequires:	python3-devel >= 1:3.5}
 %{?with_python3:BuildRequires:	python3-setuptools}
+%{?with_java:BuildRequires:	rpm-javaprov}
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.714
+BuildRequires:	rpmbuild(macros) >= 2.021
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		octave_oct_dir	%(octave-config --oct-site-dir)
@@ -124,7 +131,7 @@ Interfejs Pythona 3 do biblioteki LIBSVM.
 	CFLAGS="%{rpmcflags} -fPIC -Wall"
 
 %if %{with java}
-%{__make} -C java -j1
+%{__make} -C java -j1 JAVAC="%javac"
 %endif
 
 %if %{with octave}
